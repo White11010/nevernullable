@@ -1,7 +1,7 @@
 {
   "name": "nevernullable",
   "version": "1.0.0",
-  "description": "",
+  "description": "Option<T>, Some<T>, None types and runtime functions to safely write JS/TS code without using null and undefined",
   "main": "dist",
   "scripts": {
     "test": "jest",
@@ -17,7 +17,14 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.5.2"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "option",
+    "functional",
+    "fp",
+    "null",
+    "nullable",
+    "safe"
+  ],
+  "author": "Vladislav 'White11010' Beliavski",
   "license": "ISC"
 }
