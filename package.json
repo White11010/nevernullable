@@ -3,6 +3,13 @@
   "version": "1.0.1",
   "description": "Option<T>, Some<T>, None types and runtime functions to safely write JS/TS code without using null and undefined",
   "main": "dist",
+  "types": "dist",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "dist/**/*"
+  ],
   "scripts": {
     "test": "jest",
     "build": "tsc"
