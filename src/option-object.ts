@@ -30,6 +30,14 @@ export class Option<T> {
     }
   }
 
+  unwrapOrElse(cb: () => T): T {
+    if (this[IsNone]) {
+      return cb();
+    } else {
+      return this[Value];
+    }
+  }
+
   match (pattern: {
     Some: (value: T) => any,
     None: () => any

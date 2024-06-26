@@ -15,6 +15,14 @@ test('unwrapOr None from Option', () => {
   expect(Option(notFoundEl).unwrapOr('another value')).toBe('another value');
 });
 
+test('unwrapOrElse Some', () => {
+  expect(Some('value').unwrapOrElse(() => 'value 2')).toBe('value');
+});
+test('unwrapOrElse None from Option', () => {
+  const notFoundEl = ['a', 'b', 'c'].find(el => el.startsWith('d'));
+  expect(Option(notFoundEl).unwrapOrElse(() => 'another value')).toBe('another value');
+});
+
 test('match Some branch resolve', () => {
   expect(Some('value').match({
     Some: (value) => value,
