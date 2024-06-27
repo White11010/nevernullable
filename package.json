@@ -1,6 +1,6 @@
 {
   "name": "nevernullable",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Option<T>, Some<T>, None types and runtime functions to safely write JS/TS code without using null and undefined",
   "main": "dist",
   "types": "dist",
