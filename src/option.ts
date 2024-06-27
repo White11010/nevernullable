@@ -1,5 +1,5 @@
 import { Option as OptionObj } from './option-object';
-import { isNullable } from './shared';
+import { isNullable, NonNullable } from './shared';
 
 export type None = OptionObj<never>;
 export type Some<T> = OptionObj<NonNullable<T>>;
