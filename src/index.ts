@@ -1,7 +1,8 @@
-import { Option, Some, None } from './option';
+import { Option, Some, None, fromNullable } from './option';
 
 export {
   Option,
   Some,
-  None
+  None,
+  fromNullable
 };

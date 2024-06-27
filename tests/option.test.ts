@@ -1,4 +1,4 @@
-import { Option, Some, None } from '../src';
+import { Option, Some, None, fromNullable } from '../src';
 
 test('unwrap Some', () => {
   expect(Some('value').unwrap()).toBe('value');
@@ -36,17 +36,27 @@ test('match None branch resolve', () => {
   })).toBe('none');
 });
 
-test('fromNullable Some', () => {
+test('function returned by fromNullable should return Some', () => {
   const returnsNullable = (isNullable: boolean) => {
     return isNullable ? null : 'not nullable';
   };
-  const safeNullable = Option.fromNullable(returnsNullable);
+  const safeNullable = fromNullable(returnsNullable);
   expect(safeNullable(false).unwrap()).toBe('not nullable');
 });
-test('fromNullable None', () => {
+test('function returned by fromNullable should return None', () => {
   const returnsNullable = (isNullable: boolean) => {
     return isNullable ? null : 'not nullable';
   };
-  const safeNullable = Option.fromNullable(returnsNullable);
+  const safeNullable = fromNullable(returnsNullable);
   expect(() => safeNullable(true).unwrap()).toThrow();
+});
+
+test('Option should return a Promise when passed a Promise', () => {
+  const optionFromPromise = Option(Promise.resolve('value'));
+  expect(optionFromPromise).toBeInstanceOf(Promise);
+});
+test('Option from Promise should be valid OptionObj after resolving', async () => {
+  const optionFromPromise = Option(Promise.resolve('value'));
+  const data = await optionFromPromise;
+  expect(data.unwrap()).toBe('value');
 });

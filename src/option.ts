@@ -5,17 +5,25 @@ export type None = OptionObj<never>;
 export type Some<T> = OptionObj<NonNullable<T>>;
 export type Option<T> = OptionObj<NonNullable<T>>;
 
-interface OptionFunction {
-  <T>(value: T): OptionObj<NonNullable<T>>;
-  fromNullable: typeof fromNullable;
+
+export function Option<T>(value: Promise<T>): Promise<OptionObj<NonNullable<T>>>;
+export function Option<T extends Exclude<any, Promise<any>>>(value: T): OptionObj<NonNullable<T>>;
+export function Option<T>(value: T | Promise<T>): OptionObj<NonNullable<T>> | Promise<OptionObj<NonNullable<T>>> {
+  if (value instanceof Promise) {
+    return (async () => {
+      const resolvedValue = await value;
+      return new OptionObj(resolvedValue, isNullable(resolvedValue));
+    })() as Promise<OptionObj<NonNullable<T>>>;
+  }
+  return new OptionObj<NonNullable<T>>(value as NonNullable<T>, isNullable(value));
 }
-export const Option: OptionFunction = function (value: any) {
-  return new OptionObj(value, isNullable(value));
-} as OptionFunction;
+
+
+
 
 Option.fromNullable = fromNullable;
-function fromNullable<T extends (...args: any[]) => any>(cb: T): (...args: Parameters<T>) => Option<ReturnType<T>>;
-function fromNullable(cb: (...args: any[]) => any): (...args: any[]) => Option<any> {
+export function fromNullable<T extends (...args: any[]) => any>(cb: T): (...args: Parameters<T>) => Option<ReturnType<T>>;
+export function fromNullable(cb: (...args: any[]) => any): (...args: any[]) => Option<any> {
   return function (...args: any[]) {
     const result = cb(...args);
     if (isNullable(result)) {
