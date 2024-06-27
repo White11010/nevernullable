@@ -55,8 +55,13 @@ test('Option should return a Promise when passed a Promise', () => {
   const optionFromPromise = Option(Promise.resolve('value'));
   expect(optionFromPromise).toBeInstanceOf(Promise);
 });
-test('Option from Promise should be valid OptionObj after resolving', async () => {
+test('Option from Promise should be Some after resolving', async () => {
   const optionFromPromise = Option(Promise.resolve('value'));
   const data = await optionFromPromise;
   expect(data.unwrap()).toBe('value');
+});
+test('Option from Promise should be None after resolving', async () => {
+  const optionFromPromise = Option(Promise.resolve(null));
+  const data = await optionFromPromise;
+  expect(() => data.unwrap()).toThrow();
 });

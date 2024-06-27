@@ -18,18 +18,26 @@ export function Option<T>(value: T | Promise<T>): OptionObj<NonNullable<T>> | Pr
   return new OptionObj<NonNullable<T>>(value as NonNullable<T>, isNullable(value));
 }
 
-
-
-
 Option.fromNullable = fromNullable;
-export function fromNullable<T extends (...args: any[]) => any>(cb: T): (...args: Parameters<T>) => Option<ReturnType<T>>;
-export function fromNullable(cb: (...args: any[]) => any): (...args: any[]) => Option<any> {
+export function fromNullable<T extends (...args: any[]) => Promise<any>>(cb: T): (...args: Parameters<T>) => Promise<OptionObj<NonNullable<Awaited<ReturnType<T>>>>>;
+export function fromNullable<T extends (...args: any[]) => any>(cb: T): (...args: Parameters<T>) => OptionObj<NonNullable<ReturnType<T>>>;
+export function fromNullable(cb: (...args: any[]) => any): (...args: any[]) => any {
   return function (...args: any[]) {
     const result = cb(...args);
-    if (isNullable(result)) {
-      return None;
+    if (result instanceof Promise) {
+      return result.then((resolvedResult) => {
+        if (isNullable(resolvedResult)) {
+          return None;
+        } else {
+          return Some(resolvedResult);
+        }
+      });
     } else {
-      return Some(result);
+      if (isNullable(result)) {
+        return None;
+      } else {
+        return Some(result);
+      }
     }
   };
 }
