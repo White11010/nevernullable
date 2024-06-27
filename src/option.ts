@@ -43,10 +43,16 @@ export function fromNullable(cb: (...args: any[]) => any): (...args: any[]) => a
 }
 
 
-
+export function Some<T>(value: Promise<T>): Promise<Some<NonNullable<T>>>;
 export function Some<T>(value: T): Some<NonNullable<T>>;
-export function Some(value: any) {
-  return new OptionObj(value, false);
+export function Some<T>(value: T | Promise<T>) {
+  if (value instanceof Promise) {
+    return (async () => {
+      const resolvedValue = await value;
+      return new OptionObj(resolvedValue, false);
+    })() as Promise<OptionObj<NonNullable<T>>>;
+  }
+  return new OptionObj<NonNullable<T>>(value as NonNullable<T>, false);
 }
 
 export const None: None = Object.freeze(new OptionObj<never>(undefined as never, true));
