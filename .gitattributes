@@ -1,0 +1,13 @@
+# Force LF line endings for all text files, matching .editorconfig and Prettier.
+* text=auto eol=lf
+
+# Treat lockfiles as text but keep them on a single line strategy where it matters.
+package-lock.json text eol=lf
+
+# Binary files (none right now, but future-proofing).
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary

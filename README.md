@@ -69,7 +69,7 @@ Use the match method to handle Some and None cases explicitly.
 ```typescript
 const result = someValue.match({
   Some: (value) => `Value is ${value}`,
-  None: () => 'No value'
+  None: () => 'No value',
 });
 // result: "Value is 42"
 ```
@@ -82,12 +82,12 @@ Creates an Option from a nullable value.
 
 ```typescript
 const mayReturnNull = (isNull: boolean): null | string => {
-  return isNull ? null : 'not _null'
-}
-const nullable = mayReturnNull(true) // null
+  return isNull ? null : 'not _null';
+};
+const nullable = mayReturnNull(true); // null
 
 const neverReturnNull = Option.fromNullable(mayReturnNull);
-const neverNullable = neverReturnNull(true) // None
+const neverNullable = neverReturnNull(true); // None
 ```
 
 ## Handling Promises
@@ -104,10 +104,10 @@ import { Option } from 'nevernullable';
 const promise: Promise<string> = Promise.resolve('value');
 const optionFromPromise = Option(promise); // Type: Promise<OptionObj<NonNullable<string>>>
 
-optionFromPromise.then(option => {
+optionFromPromise.then((option) => {
   option.match({
     Some: (value) => console.log(`Resolved value: ${value}`),
-    None: () => console.log('No value')
+    None: () => console.log('No value'),
   });
 });
 ```
@@ -125,17 +125,17 @@ const syncFunction = (): string | null => 'value';
 const optionFromAsync = fromNullable(asyncFunction);
 const optionFromSync = fromNullable(syncFunction);
 
-optionFromAsync().then(result => {
+optionFromAsync().then((result) => {
   result.match({
     Some: (value) => console.log(`Async resolved value: ${value}`),
-    None: () => console.log('Async no value')
+    None: () => console.log('Async no value'),
   });
 });
 
 const result2 = optionFromSync();
 result2.match({
   Some: (value) => console.log(`Sync resolved value: ${value}`),
-  None: () => console.log('Sync no value')
+  None: () => console.log('Sync no value'),
 });
 ```
 
@@ -151,31 +151,31 @@ Represents an optional value.
 
 - `unwrap(this: Option<T>): T`
 
-    Unwraps the contained value, throwing an error if the value is None.
+  Unwraps the contained value, throwing an error if the value is None.
 
 - `unwrapOr(this: Option<T>, value: T): T`
 
-    Returns the contained value or the provided default value if None.
+  Returns the contained value or the provided default value if None.
 
 - `unwrapOrElse(this: Option<T>, cb: () => T): T`
 
-    Returns the contained value or computes a default using the provided function if None.
+  Returns the contained value or computes a default using the provided function if None.
 
 - `match<K, P>(this: Option<T>, pattern: { Some: (value: T) => K, None: () => P }): K | P`
 
-    Matches the contained value against the provided Some and None handlers.
+  Matches the contained value against the provided Some and None handlers.
 
 - `Some<T>(value: T): Option<T>`
 
-    Creates a Some variant of Option.
+  Creates a Some variant of Option.
 
 - `None: Option<never>`
 
-    Represents an absent value.
+  Represents an absent value.
 
 - `Option.fromNullable(cb: (...args: any[]) => any): (...args: any[]) => Option<any>`
 
-    Creates a function that returns Option from a function that may return nullable values. If the function returns a promise, it returns a function that returns a Promise<Option<T>>.
+  Creates a function that returns Option from a function that may return nullable values. If the function returns a promise, it returns a function that returns a Promise<Option<T>>.
 
 ## Contributing
 
@@ -184,7 +184,3 @@ Contributions are welcome! Please open an issue or submit a pull request on GitH
 ## License
 
 This library is licensed under the MIT License.
-
-
-
-

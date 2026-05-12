@@ -1,5 +1,4 @@
-import { Value, IsNone, isNullable } from './shared';
-import { None, Some } from './option'; 
+import { Value, IsNone } from './shared';
 
 export class Option<T> {
   readonly [Value]: T;
@@ -38,14 +37,20 @@ export class Option<T> {
     }
   }
 
-  match<K, P>(this: Option<T>, pattern: {
-    Some: (value: T) => K,
-    None: () => P
-  }): K | P;
-  match(this: Option<T>, pattern: {
-    Some: (value: T) => any,
-    None: () => any
-  }) {
+  match<K, P>(
+    this: Option<T>,
+    pattern: {
+      Some: (value: T) => K;
+      None: () => P;
+    },
+  ): K | P;
+  match(
+    this: Option<T>,
+    pattern: {
+      Some: (value: T) => any;
+      None: () => any;
+    },
+  ) {
     if (this[IsNone]) {
       return pattern.None();
     } else {

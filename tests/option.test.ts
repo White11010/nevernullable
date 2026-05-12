@@ -32,7 +32,7 @@ describe('Some constructor', () => {
   });
 });
 
-describe('Option\'s methods', () => {
+describe("Option's methods", () => {
   test('unwrap Some', () => {
     expect(Some('value').unwrap()).toBe('value');
   });
@@ -44,7 +44,7 @@ describe('Option\'s methods', () => {
     expect(Some('value').unwrapOr('value 2')).toBe('value');
   });
   test('unwrapOr None from Option', () => {
-    const notFoundEl = ['a', 'b', 'c'].find(el => el.startsWith('d'));
+    const notFoundEl = ['a', 'b', 'c'].find((el) => el.startsWith('d'));
     expect(Option(notFoundEl).unwrapOr('another value')).toBe('another value');
   });
 
@@ -52,21 +52,25 @@ describe('Option\'s methods', () => {
     expect(Some('value').unwrapOrElse(() => 'value 2')).toBe('value');
   });
   test('unwrapOrElse None from Option', () => {
-    const notFoundEl = ['a', 'b', 'c'].find(el => el.startsWith('d'));
+    const notFoundEl = ['a', 'b', 'c'].find((el) => el.startsWith('d'));
     expect(Option(notFoundEl).unwrapOrElse(() => 'another value')).toBe('another value');
   });
 
   test('match Some branch resolve', () => {
-    expect(Some('value').match({
-      Some: (value) => value,
-      None: () => 'none'
-    })).toBe('value');
+    expect(
+      Some('value').match({
+        Some: (value) => value,
+        None: () => 'none',
+      }),
+    ).toBe('value');
   });
   test('match None branch resolve', () => {
-    expect(None.match({
-      Some: (value) => value,
-      None: () => 'none'
-    })).toBe('none');
+    expect(
+      None.match({
+        Some: (value) => value,
+        None: () => 'none',
+      }),
+    ).toBe('none');
   });
 });
 
