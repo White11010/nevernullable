@@ -7,6 +7,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-05-12
+
+### Added
+
+#### Quality
+
+- **Coverage gate**: Jest now enforces ≥95% on `branches`, `functions`,
+  `lines` and `statements` across `src/**`. The current public surface
+  is at 100%.
+- **Edge-case tests** for `Symbol`, `BigInt`, object identity, frozen `None`
+  singleton, non-JSON-serializable values in `toString` (BigInt, circular
+  objects), error propagation through `map` / `andThen` / `filter`,
+  iterator protocol invariants, and `zipWith` on either side being `None`.
+- **Static type tests** in `tests/types/option.test-d.ts` using
+  [`expect-type`](https://github.com/mmkal/expect-type). Run via
+  `npm run typecheck:tests` (resolved through a new `tsconfig.test.json`).
+- **Micro-benchmarks** in `bench/` using
+  [`tinybench`](https://github.com/tinylibs/tinybench), comparing `map`,
+  `unwrap` and `match` against `oxide.ts` and `fp-ts`. Results live in
+  [`bench/RESULTS.md`](./bench/RESULTS.md). Reproduce with `npm run bench`.
+
+#### CI
+
+- New [`.github/workflows/ci.yml`](./.github/workflows/ci.yml): lint,
+  Prettier check, both typechecks, tests with coverage gate, build, and
+  `publint` + `@arethetypeswrong/cli` on every push and PR to `main`.
+- Matrix: Node **18 / 20 / 22** on `ubuntu-latest`, plus Node **20** on
+  `windows-latest` (the project is developed on Windows and needs
+  line-ending parity).
+- `validate:package` (publint + attw) runs once on the canonical job to
+  avoid duplicated noise.
+- Coverage report uploaded as a workflow artifact.
+
+#### Scripts
+
+- `typecheck:tests` — `tsc --noEmit -p tsconfig.test.json` for tests
+  and type-tests.
+- `bench` — run all benchmark suites and print a Markdown table.
+- `bench:save` — same, but redirect into `bench/RESULTS.md`.
+- `validate` now includes `typecheck:tests` and uses `test:coverage`
+  instead of `test` so the threshold is enforced locally too.
+
+### Changed
+
+- `jest.config.js`: added `collectCoverageFrom`, `coverageReporters`,
+  `coverageThreshold` and explicit ignore for `tests/types/` (those files
+  are static-only).
+- `tsconfig.test.json`: extends the strict `tsconfig.json`, includes
+  `src` + `tests`, sets `rootDir: "."`, `noEmit: true`.
+
+### Dev dependencies
+
+- `expect-type@^1.3.0` — type assertions for `.test-d.ts` files.
+- `tinybench@^6.0.1` — micro-benchmark runner.
+- `oxide.ts@^1.1.0`, `fp-ts@^2.16.11` — benchmark targets only.
+
 ## [2.0.0] - 2026-05-12
 
 ### Added
@@ -176,7 +232,8 @@ README for the full list.
 - Initial release: `Option<T>`, `Some<T>`, `None`, `fromNullable`, and the
   `expect`, `unwrap`, `unwrapOr`, `unwrapOrElse`, `match` methods.
 
-[Unreleased]: https://github.com/White11010/nevernullable/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/White11010/nevernullable/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/White11010/nevernullable/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/White11010/nevernullable/compare/v1.1.0...v2.0.0
 [1.1.0]: https://github.com/White11010/nevernullable/compare/v1.0.7...v1.1.0
 [1.0.7]: https://github.com/White11010/nevernullable/releases/tag/v1.0.7

@@ -44,6 +44,10 @@ src/                # Library source (TypeScript, the only thing published)
   option-object.ts  # Internal `Option` class with instance methods
   shared.ts         # Internal symbols and helpers
 tests/              # Jest test suites
+  option.test.ts    # Runtime tests
+  types/            # Static type tests via `expect-type`
+bench/              # tinybench micro-benchmarks vs. oxide.ts / fp-ts
+.github/workflows/  # CI pipeline (lint, typecheck, test, build, publint, attw)
 dist/               # Build output (generated, not committed)
 ```
 
@@ -51,25 +55,36 @@ dist/               # Build output (generated, not committed)
 
 Common scripts:
 
-| Script                 | Purpose                                   |
-| ---------------------- | ----------------------------------------- |
-| `npm test`             | Run the Jest test suite                   |
-| `npm run typecheck`    | Type-check the project without emitting   |
-| `npm run build`        | Compile TypeScript to `dist/`             |
-| `npm run lint`         | Run ESLint                                |
-| `npm run lint:fix`     | Run ESLint with `--fix`                   |
-| `npm run format`       | Reformat the project with Prettier        |
-| `npm run format:check` | Verify formatting without modifying files |
+| Script                     | Purpose                                                |
+| -------------------------- | ------------------------------------------------------ |
+| `npm test`                 | Run the Jest test suite                                |
+| `npm run test:coverage`    | Run tests with the coverage threshold (≥95% required)  |
+| `npm run typecheck`        | Type-check `src/` without emitting                     |
+| `npm run typecheck:tests`  | Type-check tests + `tests/types/*.test-d.ts`           |
+| `npm run bench`            | Run the micro-benchmarks vs. `oxide.ts` and `fp-ts`    |
+| `npm run bench:save`       | Same, but writes Markdown to `bench/RESULTS.md`        |
+| `npm run build`            | Compile TypeScript to `dist/` (ESM + CJS + types)      |
+| `npm run lint`             | Run ESLint                                             |
+| `npm run lint:fix`         | Run ESLint with `--fix`                                |
+| `npm run format`           | Reformat the project with Prettier                     |
+| `npm run format:check`     | Verify formatting without modifying files              |
+| `npm run validate`         | Full local CI: lint + typecheck + tests + build + pack |
+| `npm run validate:package` | Run `publint` and `@arethetypeswrong/cli` on the pack  |
 
-Recommended flow before opening a PR:
+Recommended flow before opening a PR (equivalent to one shot of `npm run validate`):
 
 ```bash
 npm run lint
 npm run typecheck
-npm test
+npm run typecheck:tests
+npm run test:coverage
 npm run format:check
 npm run build
+npm run validate:package
 ```
+
+CI runs the same pipeline on Node 18 / 20 / 22 (Linux) and on Node 20 (Windows)
+for every push and pull request — see [`.github/workflows/ci.yml`](./.github/workflows/ci.yml).
 
 ## Coding style
 
@@ -80,6 +95,10 @@ npm run build
 - Linting is enforced by ESLint (`eslint.config.js`). Warnings should be
   treated as errors.
 - Public symbols **must** have TSDoc comments with at least one usage example.
+- Public types **must** be covered by a `tests/types/*.test-d.ts` assertion.
+- Public runtime behavior **must** be covered by tests; the project keeps
+  `branches/functions/lines/statements` coverage at **≥95%** and CI fails
+  below that.
 - Prefer **immutable** APIs. `Option` instances should never be mutated.
 - Avoid runtime dependencies. The library targets zero dependencies on
   purpose.

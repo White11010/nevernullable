@@ -2,6 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/nevernullable.svg?logo=npm)](https://www.npmjs.com/package/nevernullable)
 [![npm downloads](https://img.shields.io/npm/dm/nevernullable.svg)](https://www.npmjs.com/package/nevernullable)
+[![CI](https://img.shields.io/github/actions/workflow/status/White11010/nevernullable/ci.yml?branch=main&label=CI&logo=github)](https://github.com/White11010/nevernullable/actions/workflows/ci.yml)
 [![bundle size](https://img.shields.io/bundlephobia/minzip/nevernullable?label=min%2Bgzip)](https://bundlephobia.com/package/nevernullable)
 [![types](https://img.shields.io/npm/types/nevernullable.svg)](https://www.npmjs.com/package/nevernullable)
 [![license](https://img.shields.io/npm/l/nevernullable.svg)](./LICENSE)
@@ -341,6 +342,13 @@ then you get an `Option`.
 
 ¹ `neverthrow` focuses on `Result<T, E>`; you can emulate `Option` as `Result<T, void>`.
 ² `Result<T, E>` is planned for a future release.
+
+### Performance
+
+Microbenchmarks (`map`, `unwrap`, `match`) place `nevernullable` within the
+same order of magnitude as `oxide.ts` and `fp-ts` — roughly **10M ops/sec**
+on Node 22. Full numbers and methodology live in
+[`bench/RESULTS.md`](./bench/RESULTS.md); reproduce with `npm run bench`.
 
 ## Migration from 1.x
 
