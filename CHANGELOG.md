@@ -7,6 +7,82 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-05-12
+
+### Added
+
+#### Instance methods on `Option`
+
+- **Type guards**: `isSome()`, `isNone()`.
+- **Transforms**: `map(fn)`, `mapOr(fallback, fn)`, `mapOrElse(onNone, fn)`.
+- **Chaining**: `andThen(fn)` (and `flatMap(fn)` as an alias).
+- **Alternatives**: `or(other)`, `orElse(fn)`.
+- **Filtering**: `filter(predicate)`.
+- **Combining**: `zip(other)`, `zipWith(other, fn)`.
+- **Flattening**: `flatten()` for `Option<Option<U>>`.
+- **Interop accessors**: `unwrapOrNull()`, `unwrapOrUndefined()`.
+- **Debugging / serialization**: `toString()`, `toJSON()` returning
+  `{ _tag: 'Some', value }` or `{ _tag: 'None' }`.
+- **Iteration**: `[Symbol.iterator]()` — `Some` yields its value once,
+  `None` yields nothing. Works with `for...of`, spread and `Array.from`.
+
+#### Static helpers on the `Option` factory
+
+- `Option.isOption(value)` — runtime type guard.
+- `Option.all([opts])` — short-circuits on the first `None`, otherwise
+  returns `Some([v0, v1, ...])` preserving the tuple shape.
+- `Option.any([opts])` — short-circuits on the first `Some`, otherwise
+  returns `None`.
+
+#### Documentation
+
+- Full TSDoc on every public symbol with usage examples.
+- Rewritten `README.md` with quick start, full API table, cookbook,
+  migration guide, library comparison and shields.io badges.
+
+### Changed
+
+- `map(fn)` collapses `null` / `undefined` results from `fn` to `None`,
+  matching the library's null-safe contract. (For straight transformation
+  without auto-collapse, use `andThen(value => Some(...))` explicitly.)
+- `zipWith(other, fn)` mirrors `map`: nullable results from `fn` collapse
+  to `None`.
+- The `None` singleton is now used by **every** `None`-producing code path
+  (`map`, `andThen`, `filter`, `Option(null)`, etc.), so the equality
+  `result === None` is reliable.
+- Public type aliases: `Option<T>`, `Some<T>` and `None` are still exported
+  from the package root; the `Option<T>` shape is unchanged.
+
+### Removed
+
+- **Breaking**: deep imports such as `nevernullable/dist/option.js` are no
+  longer resolvable. The package `exports` map only exposes the root entry
+  `nevernullable` and `nevernullable/package.json`. The deep paths were
+  never documented as public API.
+
+### Fixed
+
+- **Breaking**: `Some(null)` and `Some(undefined)` now throw `TypeError`
+  synchronously (and `Some(Promise.resolve(null))` rejects with the same
+  error). Previously, they constructed a "fake Some" carrying `null`
+  whose type was declared as `Some<NonNullable<T>>` — a runtime
+  contradiction. If you don't know whether a value is nullable, use
+  `Option(value)` instead.
+
+### Migration
+
+The vast majority of users only need one change:
+
+```ts
+// before
+const x = Some(maybeNull);
+// after
+const x = Option(maybeNull);
+```
+
+See the [Migration from 1.x](./README.md#migration-from-1x) section of the
+README for the full list.
+
 ## [1.1.0] - 2026-05-12
 
 ### Added
@@ -100,7 +176,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release: `Option<T>`, `Some<T>`, `None`, `fromNullable`, and the
   `expect`, `unwrap`, `unwrapOr`, `unwrapOrElse`, `match` methods.
 
-[Unreleased]: https://github.com/White11010/nevernullable/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/White11010/nevernullable/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/White11010/nevernullable/compare/v1.1.0...v2.0.0
 [1.1.0]: https://github.com/White11010/nevernullable/compare/v1.0.7...v1.1.0
 [1.0.7]: https://github.com/White11010/nevernullable/releases/tag/v1.0.7
 [1.0.0]: https://github.com/White11010/nevernullable/releases/tag/v1.0.0
