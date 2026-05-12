@@ -7,17 +7,66 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-05-12
+
+### Added
+
+- **Dual ESM + CJS build** via [`tsup`](https://tsup.egoist.dev/):
+  - ESM entry: `dist/index.mjs` (with `dist/index.d.mts` types).
+  - CJS entry: `dist/index.cjs` (with `dist/index.d.ts` types).
+  - Source maps and declaration maps are shipped for both.
+- Conditional `exports` map in `package.json` (`import`/`require` with their
+  own `types`), so bundlers and `tsc --moduleResolution node16/bundler`
+  resolve the correct format without ambiguity.
+- `"sideEffects": false` for proper tree-shaking in modern bundlers.
+- `"engines": { "node": ">=18" }`.
+- `"publishConfig": { "access": "public", "provenance": true }` so future
+  npm publishes will be signed with npm provenance.
+- `"bugs"` field pointing at GitHub Issues.
+- Greatly expanded `keywords` (33 entries) and a more descriptive `description`
+  for better discoverability on the npm registry search.
+- New npm scripts:
+  - `clean` — remove `dist/`.
+  - `build` — produce ESM + CJS + types via tsup.
+  - `build:watch` — incremental tsup build.
+  - `test:coverage` — Jest with coverage.
+  - `validate` — runs lint + typecheck + tests + format check + build +
+    `publint` + `attw` (the full CI pipeline locally).
+  - `validate:package` — runs `publint` and `@arethetypeswrong/cli` only.
+  - `prepack` / `prepublishOnly` — guarantee a clean validated build before
+    publishing.
+- Dev dependencies: `tsup`, `publint`, `@arethetypeswrong/cli`.
+
 ### Changed
 
-- Project hygiene pass (no public API changes yet):
-  - Added `.editorconfig` to enforce consistent indentation, line endings and
-    final newlines across editors.
+- `package.json` `main` / `module` / `types` now point at concrete files
+  (`./dist/index.cjs`, `./dist/index.mjs`, `./dist/index.d.ts`) instead of
+  the `dist` folder.
+- `package.json` `type` set to `"commonjs"` (explicit, matches the `main`
+  entry; ESM consumers still resolve `import` → `.mjs`).
+- `files` field tightened to ship only `dist`, `LICENSE`, `README.md`,
+  `CHANGELOG.md`.
+- `author` upgraded to an object with `name` + `url`.
+
+### Notes
+
+- This release contains **no runtime behavior or public API changes**. It is
+  a packaging release. All previous code paths and types still work.
+
+## [1.0.8-bootstrap] (internal, unreleased)
+
+### Changed
+
+- Project hygiene pass (no public API changes):
+  - Added `.editorconfig` and `.gitattributes` (LF everywhere) for consistent
+    cross-platform development.
   - Added Prettier (`.prettierrc.json`, `.prettierignore`) with `format` and
     `format:check` scripts. Codebase reformatted to a single style.
   - `tsconfig.json` tightened: `target` raised to `es2020`, enabled
     `declarationMap`, `sourceMap`, `noUncheckedIndexedAccess`,
-    `noImplicitReturns`, `noFallthroughCasesInSwitch`, `useUnknownInCatchVariables`,
-    `isolatedModules`, explicit `lib`/`moduleResolution`.
+    `noImplicitReturns`, `noFallthroughCasesInSwitch`,
+    `useUnknownInCatchVariables`, `isolatedModules`, explicit
+    `lib` / `moduleResolution`.
   - Migrated ESLint to v9+ flat config (`eslint.config.js`) with
     `typescript-eslint` v8 and `eslint-config-prettier`. Added `lint`,
     `lint:fix` and `typecheck` npm scripts.
@@ -31,9 +80,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Removed unused `isNullable` import from `src/option-object.ts` and trailing
-  dead static method `Option.fromNullable` on the class (the public
-  `Option.fromNullable` lives on the callable factory in `src/option.ts`).
+- Removed unused `isNullable` / `None` / `Some` imports from
+  `src/option-object.ts` and the trailing dead `static fromNullable` method
+  on the class (the public `Option.fromNullable` lives on the callable
+  factory in `src/option.ts`).
 
 ## [1.0.7] - 2024-06-27
 
@@ -50,6 +100,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release: `Option<T>`, `Some<T>`, `None`, `fromNullable`, and the
   `expect`, `unwrap`, `unwrapOr`, `unwrapOrElse`, `match` methods.
 
-[Unreleased]: https://github.com/White11010/nevernullable/compare/v1.0.7...HEAD
+[Unreleased]: https://github.com/White11010/nevernullable/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/White11010/nevernullable/compare/v1.0.7...v1.1.0
 [1.0.7]: https://github.com/White11010/nevernullable/releases/tag/v1.0.7
 [1.0.0]: https://github.com/White11010/nevernullable/releases/tag/v1.0.0
