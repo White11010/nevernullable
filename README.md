@@ -61,7 +61,7 @@ Option(users.find((u) => u.id === id))
   });
 ```
 
-The library is intentionally tiny (about **2 KB min+gzip**), has zero
+The library is intentionally tiny (about **3 KB min+gzip**), has zero
 dependencies, ships **dual ESM + CJS** with full type maps, and is built for
 modern Node (18+) and any bundler.
 
@@ -337,7 +337,7 @@ then you get an `Option`.
 | `Symbol.iterator`                   |      ✅       |                          ✅                          |                                   —                                   |                           —                            |
 | Dual ESM + CJS, types in both lanes |      ✅       |                          ✅                          |                                  ✅                                   |                           ✅                           |
 | Zero runtime dependencies           |      ✅       |                          ✅                          |                                  ❌                                   |                           ✅                           |
-| Bundle size (min+gzip, approx.)     |   **~2 KB**   |                        ~6 KB                         |                                ~50 KB                                 |                         ~5 KB                          |
+| Bundle size (min+gzip, approx.)     |   **~3 KB**   |                        ~6 KB                         |                                ~50 KB                                 |                         ~5 KB                          |
 
 ¹ `neverthrow` focuses on `Result<T, E>`; you can emulate `Option` as `Result<T, void>`.
 ² `Result<T, E>` is planned for a future release.
