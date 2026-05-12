@@ -449,6 +449,174 @@ describe('fromNullable (back-compat)', () => {
   });
 });
 
+describe('Edge cases: symbols, BigInt, objects', () => {
+  test('Option(Symbol()) is Some', () => {
+    const sym = Symbol('x');
+    expect(Option(sym).isSome()).toBe(true);
+    expect(Option(sym).unwrap()).toBe(sym);
+  });
+  test('Some(Symbol.iterator) preserves identity', () => {
+    expect(Some(Symbol.iterator).unwrap()).toBe(Symbol.iterator);
+  });
+  test('Option(0n) is Some(0n)', () => {
+    expect(Option(0n).unwrap()).toBe(0n);
+    expect(Option(0n).isSome()).toBe(true);
+  });
+  test('Some(BigInt) preserves identity', () => {
+    expect(Some(42n).unwrap()).toBe(42n);
+  });
+  test('Some(object) preserves reference identity through unwrap', () => {
+    const obj = { a: 1 };
+    expect(Some(obj).unwrap()).toBe(obj);
+  });
+  test('Some(object) preserves reference identity through map identity', () => {
+    const obj = { a: 1 };
+    expect(
+      Some(obj)
+        .map((x) => x)
+        .unwrap(),
+    ).toBe(obj);
+  });
+  test('Option(Array) is Some(Array) and preserves identity', () => {
+    const arr = [1, 2, 3];
+    expect(Option(arr).unwrap()).toBe(arr);
+  });
+});
+
+describe('Edge cases: None singleton invariants', () => {
+  test('None is frozen', () => {
+    expect(Object.isFrozen(None)).toBe(true);
+  });
+  test('Option(null) === Option(undefined) === None', () => {
+    expect(Option(null)).toBe(None);
+    expect(Option(undefined)).toBe(None);
+    expect(Option(null)).toBe(Option(undefined));
+  });
+  test('every None-producing path returns the same singleton', () => {
+    expect(Some(1).filter(() => false)).toBe(None);
+    expect(
+      Some(1)
+        .map(() => null)
+        .valueOf?.() ?? Some(1).map(() => null),
+    ).toBe(None);
+    expect(Some(1).zip(None as Option<number>)).toBe(None);
+    expect((None as Option<number>).andThen(() => Some(1))).toBe(None);
+  });
+});
+
+describe('Edge cases: toString fallback for non-JSON values', () => {
+  test('Some(BigInt).toString uses String() fallback (JSON cannot serialize BigInt)', () => {
+    expect(Some(10n).toString()).toBe('Some(10)');
+  });
+  test('Some(circular).toString uses String() fallback', () => {
+    const circular: Record<string, unknown> = {};
+    circular.self = circular;
+    expect(Some(circular).toString()).toMatch(/^Some\(/);
+  });
+  test('Some(Symbol).toString does not throw', () => {
+    expect(() => Some(Symbol('s')).toString()).not.toThrow();
+  });
+  test('Some(NaN).toString is "Some(null)" (JSON.stringify(NaN) === "null")', () => {
+    expect(Some(NaN).toString()).toBe('Some(null)');
+  });
+});
+
+describe('Edge cases: zipWith with None on either side', () => {
+  test('None.zipWith(Some, fn) returns None without calling fn', () => {
+    const fn = jest.fn(() => 1);
+    expect((None as Option<number>).zipWith(Some(2), fn).isNone()).toBe(true);
+    expect(fn).not.toHaveBeenCalled();
+  });
+  test('Some.zipWith(None, fn) returns None without calling fn', () => {
+    const fn = jest.fn(() => 1);
+    expect(
+      Some(1)
+        .zipWith(None as Option<number>, fn)
+        .isNone(),
+    ).toBe(true);
+    expect(fn).not.toHaveBeenCalled();
+  });
+  test('zipWith fn returning undefined collapses to None', () => {
+    expect(
+      Some(2)
+        .zipWith(Some(3), () => undefined)
+        .isNone(),
+    ).toBe(true);
+  });
+});
+
+describe('Edge cases: expect / unwrap / map error semantics', () => {
+  test('expect("") on None throws Error with empty message', () => {
+    expect(() => None.expect('')).toThrow(Error);
+    expect(() => None.expect('')).toThrow('');
+  });
+  test('unwrap on None throws Error (not TypeError)', () => {
+    expect(() => None.unwrap()).toThrow(Error);
+  });
+  test('map fn that throws synchronously propagates the error', () => {
+    expect(() =>
+      Some(1).map(() => {
+        throw new RangeError('boom');
+      }),
+    ).toThrow(RangeError);
+  });
+  test('andThen fn that throws synchronously propagates the error', () => {
+    expect(() =>
+      Some(1).andThen(() => {
+        throw new RangeError('boom');
+      }),
+    ).toThrow(RangeError);
+  });
+  test('filter predicate that throws synchronously propagates the error', () => {
+    expect(() =>
+      Some(1).filter(() => {
+        throw new RangeError('boom');
+      }),
+    ).toThrow(RangeError);
+  });
+});
+
+describe('Edge cases: match exhaustiveness and side effects', () => {
+  test('match runs only the matching branch (Some)', () => {
+    const onSome = jest.fn(() => 'some');
+    const onNone = jest.fn(() => 'none');
+    expect(Some(1).match({ Some: onSome, None: onNone })).toBe('some');
+    expect(onSome).toHaveBeenCalledTimes(1);
+    expect(onNone).not.toHaveBeenCalled();
+  });
+  test('match runs only the matching branch (None)', () => {
+    const onSome = jest.fn(() => 'some');
+    const onNone = jest.fn(() => 'none');
+    expect(None.match({ Some: onSome, None: onNone })).toBe('none');
+    expect(onSome).not.toHaveBeenCalled();
+    expect(onNone).toHaveBeenCalledTimes(1);
+  });
+  test('match branches may return different types (union)', () => {
+    const r: number | string = (Some(1) as Option<number>).match({
+      Some: (n) => n,
+      None: () => 'none',
+    });
+    expect(r).toBe(1);
+  });
+});
+
+describe('Edge cases: iterator protocol invariants', () => {
+  test('Some iterator is exhausted after one yield', () => {
+    const it = Some(7)[Symbol.iterator]();
+    expect(it.next()).toEqual({ value: 7, done: false });
+    expect(it.next()).toEqual({ value: undefined, done: true });
+  });
+  test('None iterator yields done=true immediately', () => {
+    const it = (None as Option<number>)[Symbol.iterator]();
+    expect(it.next()).toEqual({ value: undefined, done: true });
+  });
+  test('Calling [Symbol.iterator] twice yields independent iterators', () => {
+    const o = Some(1);
+    expect([...o]).toEqual([1]);
+    expect([...o]).toEqual([1]);
+  });
+});
+
 describe('Real-world cookbook', () => {
   type User = { id: number; name: string; email: string | null };
   const users: User[] = [
