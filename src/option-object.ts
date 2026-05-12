@@ -52,16 +52,4 @@ export class Option<T> {
       return pattern.Some(this[Value]);
     }
   }
-
-  static fromNullable<T extends (...args: any[]) => any>(cb: T): (args: Parameters<T>) => Some<Exclude<ReturnType<T>, null | undefined>> | None;
-  static fromNullable(cb: (...args: any[]) => any): (...args: any) => Option<any> {
-    return function (...args: any[]) {
-      const result = cb(...args);
-      if (isNullable(result)) {
-        return None;
-      } else {
-        return Some(result);
-      }
-    };
-  }
 }
